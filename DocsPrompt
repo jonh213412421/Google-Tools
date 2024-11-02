@@ -43,26 +43,13 @@ function verificarfuncs() {
     const file = DriveApp.createFile(blob);
     const fileId = file.getId();
     const fileUrl = file.getUrl();
-    body.appendParagraph(fileUrl);
-    body.appendParagraph();
-    // Lê o conteúdo do arquivo
-    const conteudo = file.getBlob().getBytes();
-
-    // Converte o conteúdo para hexadecimal
-    const hex = toHex(conteudo);
-    body.appendParagraph(hex); // Adiciona o hexadecimal ao documento
-
-    // Remove o arquivo temporário
-    //DriveApp.getFileById(fileId).setTrashed(true);
+    body.appendParagraph(' ')
+    body.appendParagraph("link: " + fileUrl);
 
   } catch (e) {
     Logger.log('Erro ao buscar URL: ' + e.message);
     body.appendParagraph('Erro ao buscar URL: ' + e.message);
   }
   }
-    function toHex(bytes) {
-  return Array.from(bytes)
-    .map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2))
-    .join('');
-}
+
 }
