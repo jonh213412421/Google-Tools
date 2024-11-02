@@ -12,16 +12,22 @@ function verificarfuncs() {
   const comando = Prompt.trim().split(' ')[0];
   const args = Prompt.trim().split(' ').slice(1);
   
-  // Verifica se o texto contém "oi"
-  if (comando === "oi") {
-    // Adiciona uma nova linha com "olá"
-    body.appendParagraph("olá");
-    body.appendParagraph(args.join(' '));
+  // comando math -> resolve equações
+  if (comando === "math") {
+    const resultado = eval(args.join(' '));
+    body.appendParagraph(' ');
+    body.appendParagraph("resultado: " + resultado);
   }
+
+
+  //comando limpar -> limpa inputs
   if (comando === "limpar") {
     // Adiciona uma nova linha com "olá"
     body.clear();
   }
+
+
+  //comando "url" -> para navegar
   if (comando === "url") {
     //extrai página
     const url = args.join(' ');
@@ -30,7 +36,9 @@ function verificarfuncs() {
     const conteudo = resposta.getContentText();
     body.appendParagraph(conteudo);
   }
-  // Comando "download"
+
+
+  // Comando "download" - > para baixar arquivos
   if (comando === "download") {
   const url = args.join(' ');
 
@@ -52,4 +60,10 @@ function verificarfuncs() {
   }
   }
 
+//converte para hexadecimal. Usar depois??
+function toHex(bytes) {
+  return Array.from(new Uint8Array(bytes))
+    .map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2))
+    .join('');
+}
 }
