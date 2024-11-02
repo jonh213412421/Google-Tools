@@ -1,0 +1,25 @@
+function onOpen() {
+  DocumentApp.getUi()
+      .createMenu('Custom Menu')
+      .addItem('run', 'verificarfuncs')
+      .addToUi();
+}
+
+function verificarfuncs() {
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  const Prompt = body.getParagraphs()[0].getText();
+  const comando = Prompt.trim().split(' ')[0];
+  const args = Prompt.trim().split(' ').slice(1);
+  
+  // Verifica se o texto contém "oi"
+  if (comando === "oi") {
+    // Adiciona uma nova linha com "olá"
+    body.appendParagraph("olá");
+    body.appendParagraph(args.join(' '));
+  }
+    if (comando === "limpar") {
+    // Adiciona uma nova linha com "olá"
+    body.clear();
+  }
+}
