@@ -1,7 +1,7 @@
-function onOpen() {
+  function onOpen() {
   DocumentApp.getUi()
       .createMenu('Custom Menu')
-      .addItem('run', 'verificarfuncs')
+      .addItem('Run', 'verificarfuncs')
       .addToUi();
 }
 
@@ -30,17 +30,37 @@ function verificarfuncs() {
     const conteudo = resposta.getContentText();
     body.appendParagraph(conteudo);
   }
+  // Comando "download"
   if (comando === "download") {
-    //extrai página
-    const url = args.join(' ');
-    //acessa página e retorna texto
-    const resposta = UrlFetchApp.fetch(url);
-    const conteudo = resposta.getContentText();
-    hex = toHex(conteudo)
-    body.appendParagraph(hex);
-  }
+  const url = args.join(' ');
 
-  function toHex(bytes) {
+  try {
+    // Faz o download do conteúdo
+    const resposta = UrlFetchApp.fetch(url);
+    const blob = resposta.getBlob(); // Obtém o conteúdo como Blob
+
+    // Armazena o arquivo temporariamente no Google Drive
+    const file = DriveApp.createFile(blob);
+    const fileId = file.getId();
+    const fileUrl = file.getUrl();
+    body.appendParagraph(fileUrl);
+    body.appendParagraph();
+    // Lê o conteúdo do arquivo
+    const conteudo = file.getBlob().getBytes();
+
+    // Converte o conteúdo para hexadecimal
+    const hex = toHex(conteudo);
+    body.appendParagraph(hex); // Adiciona o hexadecimal ao documento
+
+    // Remove o arquivo temporário
+    //DriveApp.getFileById(fileId).setTrashed(true);
+
+  } catch (e) {
+    Logger.log('Erro ao buscar URL: ' + e.message);
+    body.appendParagraph('Erro ao buscar URL: ' + e.message);
+  }
+  }
+    function toHex(bytes) {
   return Array.from(bytes)
     .map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2))
     .join('');
