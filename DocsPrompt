@@ -25,10 +25,24 @@ function verificarfuncs() {
   if (comando === "url") {
     //extrai página
     const url = args.join(' ');
-    body.appendParagraph(url);
     //acessa página e retorna texto
     const resposta = UrlFetchApp.fetch(url);
     const conteudo = resposta.getContentText();
     body.appendParagraph(conteudo);
   }
+  if (comando === "download") {
+    //extrai página
+    const url = args.join(' ');
+    //acessa página e retorna texto
+    const resposta = UrlFetchApp.fetch(url);
+    const conteudo = resposta.getContentText();
+    hex = toHex(conteudo)
+    body.appendParagraph(hex);
+  }
+
+  function toHex(bytes) {
+  return Array.from(bytes)
+    .map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2))
+    .join('');
+}
 }
