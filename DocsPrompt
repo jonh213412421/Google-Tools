@@ -18,8 +18,17 @@ function verificarfuncs() {
     body.appendParagraph("olá");
     body.appendParagraph(args.join(' '));
   }
-    if (comando === "limpar") {
+  if (comando === "limpar") {
     // Adiciona uma nova linha com "olá"
     body.clear();
+  }
+  if (comando === "url") {
+    //extrai página
+    const url = args.join(' ');
+    body.appendParagraph(url);
+    //acessa página e retorna texto
+    const resposta = UrlFetchApp.fetch(url);
+    const conteudo = resposta.getContentText();
+    body.appendParagraph(conteudo);
   }
 }
