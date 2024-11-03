@@ -1,6 +1,6 @@
-  function onOpen() {
+function onOpen() {
   DocumentApp.getUi()
-      .createMenu('Custom Menu')
+      .createMenu('Script')
       .addItem('Run', 'verificarfuncs')
       .addToUi();
 }
