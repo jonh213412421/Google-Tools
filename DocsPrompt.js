@@ -11,19 +11,25 @@ function verificarfuncs() {
   const Prompt = body.getParagraphs()[0].getText();
   const comando = Prompt.trim().split(' ')[0];
   const args = Prompt.trim().split(' ').slice(1);
-  
-  // comando math -> resolve equações
-  if (comando === "math") {
-    const resultado = eval(args.join(' '));
-    body.appendParagraph(' ');
-    body.appendParagraph("resultado: " + resultado);
-  }
 
+
+  if (comando === "-h") {
+    body.appendParagraph(' ')
+    body.appendParagraph('Comandos disponíveis:\nmath -> avalia uma expressão digitada\nurl -> retorna o html da url digitada\ndownload -> faz o download do arquivo para o drive e retorna com o link')
+  }
 
   //comando limpar -> limpa inputs
   if (comando === "limpar") {
     // Adiciona uma nova linha com "olá"
     body.clear();
+  }
+  
+
+  // comando math -> resolve equações
+  if (comando === "math") {
+    const resultado = eval(args.join(' '));
+    body.appendParagraph(' ');
+    body.appendParagraph("resultado: " + resultado);
   }
 
 
