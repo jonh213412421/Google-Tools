@@ -40,20 +40,24 @@ function verificarfuncs() {
     //acessa página e retorna texto
     const resposta = UrlFetchApp.fetch(url);
     const conteudo = resposta.getContentText();
+    const blob = resposta.getBlob();
+    const file = DriveApp.createFile(blob);
+    const fileUrl = file.getUrl();
+    body.appendParagraph('link para versão simplificada da página:');
+    body.appendParagraph(' ');
+    body.appendParagraph(fileUrl);
+    body.appendParagraph(' ');
     body.appendParagraph(conteudo);
         // Usando Cheerio para fazer parsing do HTML
     const links = [];
-    const regex = /<td[^>]*>(.*?)<\/td>/g; // Captura conteúdo de <td>
+    const regex = /<a\s+(?:[^>]*?\s+)?href="http:([^"]*)"/g; // Captura conteúdo de <td>
     let match;
 
     while ((match = regex.exec(conteudo)) !== null) {
       // Procura por links dentro do conteúdo do <td>
-      const innerRegex = /href="([^"]+)"/g;
-      let innerMatch;
-      while ((innerMatch = innerRegex.exec(match[1])) !== null) {
-        links.push(innerMatch[1]); // Adiciona o link à lista
+      links.push(match[1]); // Adiciona o link à lista
       }
-    }
+
     // Adiciona todos os links encontrados ao documento
     links.forEach(link => {
       body.appendParagraph(link);
