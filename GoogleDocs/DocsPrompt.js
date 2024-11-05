@@ -18,6 +18,7 @@ function verificarfuncs() {
     body.appendParagraph('Comandos disponíveis:\nmath -> avalia uma expressão digitada\nurl -> retorna o html da url digitada\ndownload -> faz o download do arquivo para o drive e retorna com o link')
   }
 
+
   //comando limpar -> limpa inputs
   if (comando === "limpar") {
     // Adiciona uma nova linha com "olá"
@@ -42,6 +43,7 @@ function verificarfuncs() {
     const conteudo = resposta.getContentText();
     const blob = resposta.getBlob();
     const file = DriveApp.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     const fileUrl = file.getUrl();
     body.appendParagraph('link para versão simplificada da página:');
     body.appendParagraph(' ');
@@ -76,6 +78,7 @@ function verificarfuncs() {
 
     // Armazena o arquivo temporariamente no Google Drive
     const file = DriveApp.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     const fileId = file.getId();
     const fileUrl = file.getUrl();
     body.appendParagraph(' ')
