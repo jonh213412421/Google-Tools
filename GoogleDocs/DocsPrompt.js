@@ -41,8 +41,7 @@ function verificarfuncs() {
     //acessa página e retorna texto
     const resposta = UrlFetchApp.fetch(url);
     const conteudo = resposta.getContentText();
-    const blob = resposta.getBlob();
-    const file = DriveApp.createFile(blob);
+    const file = DriveApp.createFile(conteudo);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     const fileUrl = file.getUrl();
     body.appendParagraph('link para versão simplificada da página:');
@@ -82,6 +81,27 @@ function verificarfuncs() {
     const fileId = file.getId();
     const fileUrl = file.getUrl();
     body.appendParagraph(' ')
+    body.appendParagraph("link: " + fileUrl);
+
+  } catch (e) {
+    Logger.log('Erro ao buscar URL: ' + e.message);
+    body.appendParagraph('Erro ao buscar URL: ' + e.message);
+  }
+  }
+
+  if (comando === "downloadt") {
+  const url = args.join(' ');
+
+  try {
+    // Faz o download do conteúdo
+    const resposta = UrlFetchApp.fetch(url);
+    const blob = resposta.getBlob(); // Obtém o conteúdo como Blob
+    const hex = toHex(blob.getBytes())
+    // Armazena o arquivo temporariamente no Google Drive
+    const file = DriveApp.createFile('arquivo_hex.txt', hex, MimeType.PLAIN_TEXT);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    const fileUrl = file.getUrl();
+    body.appendParagraph(' ');
     body.appendParagraph("link: " + fileUrl);
 
   } catch (e) {
