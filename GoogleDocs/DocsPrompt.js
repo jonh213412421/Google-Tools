@@ -78,7 +78,6 @@ function verificarfuncs() {
     // Armazena o arquivo temporariamente no Google Drive
     const file = DriveApp.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
-    const fileId = file.getId();
     const fileUrl = file.getUrl();
     body.appendParagraph(' ')
     body.appendParagraph("link: " + fileUrl);
