@@ -41,7 +41,7 @@ function verificarfuncs() {
     //acessa página e retorna texto
     const resposta = UrlFetchApp.fetch(url);
     const conteudo = resposta.getContentText();
-    const file = DriveApp.createFile(conteudo);
+    const file = DriveApp.createFile("webpage.html", conteudo);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     const fileUrl = file.getUrl();
     body.appendParagraph('link para versão simplificada da página:');
@@ -95,9 +95,9 @@ function verificarfuncs() {
     // Faz o download do conteúdo
     const resposta = UrlFetchApp.fetch(url);
     const blob = resposta.getBlob(); // Obtém o conteúdo como Blob
-    const hex = toHex(blob.getBytes())
+    const hex = Utilities.base64Encode(blob.getBytes())
     // Armazena o arquivo temporariamente no Google Drive
-    const file = DriveApp.createFile('arquivo_hex.txt', hex, MimeType.PLAIN_TEXT);
+    const file = DriveApp.createFile('download.txt', hex, MimeType.PLAIN_TEXT);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     const fileUrl = file.getUrl();
     body.appendParagraph(' ');
@@ -108,11 +108,4 @@ function verificarfuncs() {
     body.appendParagraph('Erro ao buscar URL: ' + e.message);
   }
   }
-
-//converte para hexadecimal. Usar depois??
-function toHex(bytes) {
-  return Array.from(new Uint8Array(bytes))
-    .map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2))
-    .join('');
-}
 }
