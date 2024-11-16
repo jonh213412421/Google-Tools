@@ -15,7 +15,7 @@ function verificarfuncs() {
 
   if (comando === "-h") {
     body.appendParagraph(' ')
-    body.appendParagraph('Comandos disponíveis:\nmath -> avalia uma expressão digitada\nurl -> retorna o html da url digitada\ndownload -> faz o download do arquivo para o drive e retorna com o link')
+    body.appendParagraph('Comandos disponíveis:\nmath (expressão) -> avalia uma expressão digitada\nurl (link) -> retorna o html da url digitada\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\ntamanho (link) - retorna o tamanho do arquivo\ndownload_p (link) (início) (fim) - baixa os bytes de início a fim\ndownloadt (link) - baixa o arquivo e codifica em base64\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.')
   }
 
 
@@ -34,38 +34,43 @@ function verificarfuncs() {
   }
 
 
-  //comando "url" -> para navegar
+  //comando "url" -> navega para a página desejada
   if (comando === "url") {
     //extrai página
     const url = args.join(' ');
     //acessa página e retorna texto
     const resposta = UrlFetchApp.fetch(url);
     const conteudo = resposta.getContentText();
-    const file = DocumentApp.openById('1ZGxUrz8KYGSqQdA6jezGTGx39lcsMX1kuUJxy_zQmPE').getBody();
-    file.setText(conteudo);
+    const file = DriveApp.createFile("pagina.html", conteudo);
     body.appendParagraph('link para versão simplificada da página:');
     body.appendParagraph(' ');
-    body.appendParagraph('https://docs.google.com/document/d/1XZ38vO7oWKYU3uUmAGmLC1XWi9QmsjmU-CQQLn3I6h8/edit?tab=t.0');
+    body.appendParagraph(file.getUrl());
     body.appendParagraph(' ');
     body.appendParagraph(conteudo);
-        // Usando Cheerio para fazer parsing do HTML
-    const links = [];
-    const regex = /<a\s+(?:[^>]*?\s+)?href="http:([^"]*)"/g; // Captura conteúdo de <td>
-    let match;
-
-    while ((match = regex.exec(conteudo)) !== null) {
-      // Procura por links dentro do conteúdo do <td>
-      links.push(match[1]); // Adiciona o link à lista
-      }
-
-    // Adiciona todos os links encontrados ao documento
-    links.forEach(link => {
-      body.appendParagraph(link);
-    });
   }
 
 
-  // Comando "download" - > para baixar arquivos
+  // Comando "tamanho" - > pega tamanho do arquivo (url)
+  if (comando === "tamanho") {
+  url = args.join(' ');
+
+  try {
+    const options = {
+      method: "GET",
+      headers: {
+        Range: "bytes=0-0",
+      },
+    };
+    const resposta = UrlFetchApp.fetch(url, options);
+    const size = resposta.getHeaders()['Content-Range'].slice(10);
+    body.appendParagraph("tamanho do arquivo: " + size);   
+  } catch (e) {
+    Logger.log('Erro: ' + e.message);
+  }
+  }
+
+
+  // Comando "download" - > para baixar arquivos inteiros
   if (comando === "download") {
   const url = args.join(' ');
 
@@ -88,29 +93,55 @@ function verificarfuncs() {
   }
 
 
-  //baixa em forma de texto
-  if (comando === "downloadt") {
-  const url = args.join(' ');
+  // Comando "download" - > para baixar partes de arquivos
+  if (comando === "download_p") {
+  let argumentos = args.join(' ');
+  const url = argumentos.split(' ')[0];
+  inicio = parseInt(argumentos.split(' ')[1]);
+  fim = parseInt(argumentos.split(' ')[2]);
+  const ext =  argumentos.split(' ')[3];
+  body.appendParagraph(inicio);
+  body.appendParagraph(fim);
+
   try {
-    // Faz o download do conteúdo
-    const resposta = UrlFetchApp.fetch(url);
-    const blob = resposta.getBlob(); // Obtém o conteúdo como Blob
-    const hex = Utilities.base64Encode(blob.getBytes())
-    // Armazena o arquivo temporariamente no Google Drive
-    const file = DriveApp.createFile('download', hex, MimeType.PLAIN_TEXT);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
-    const fileUrl = file.getUrl();
-    body.appendParagraph(' ');
-    body.appendParagraph("link: " + fileUrl);
-
+    // Faz uma requisição HTTP para obter a parte desejada
+    const headers = { 'Range': 'bytes=' + inicio + '-' + fim }; // Baixar do byte 0 até 2MB (primeiros 3MB)
+    const options = { 'headers': headers };
+    // Faz o fetch do arquivo com os cabeçalhos de Range
+    const resposta = UrlFetchApp.fetch(url, options);
+    size = resposta.getHeaders()['Content-Length'];
+    body.appendParagraph("tamanho do arquivo: " + size);   
+    // Verifica se a resposta foi bem-sucedida (código HTTP 206 para parcial)
+    const blob = resposta.getBlob(); // Obter o conteúdo do arquivo
+    const file = DriveApp.createFile(blob); // Salva no Google Drive
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); // Torna o arquivo acessível
   } catch (e) {
-    Logger.log('Erro ao buscar URL: ' + e.message);
-    body.appendParagraph('Erro ao buscar URL: ' + e.message);
+    Logger.log('Erro: ' + e.message);
   }
   }
 
-  //converte para texto
-  if (comando === "convert_m") {
+  if (comando === "juntar") {
+  let argumentos = args.join(' ');
+  const arquivo_1_id = argumentos.split(' ')[0];
+  const arquivo_2_id = argumentos.split(' ')[1];
+  const ext = argumentos.split(' ')[2];
+  // Pega os arquivos do drive
+  let file1 = DriveApp.getFileById(arquivo_1_id).getBlob().getBytes();
+  let file2 = DriveApp.getFileById(arquivo_2_id).getBlob().getBytes();
+  // Cria um novo array com espaço para armazenar os dois arquivos
+  let combinedBytes = new Uint8Array(file1.length + file2.length);
+  // Copia os bytes para os arquvios
+  combinedBytes.set(new Uint8Array(file1), 0);
+  combinedBytes.set(new Uint8Array(file2), file1.length);
+  let combinedBlob = Utilities.newBlob(combinedBytes, 'application/octet-stream', "juntado." + ext);
+  // Salva o arquivo com nome de juntado. + extensão
+  let arquivo_final = DriveApp.createFile(combinedBlob);
+  body.appendParagraph('link para o arquivo: ' + arquivo_final.getUrl());
+  }
+
+
+  //converte para texto -> decodifica de base64 para texto
+  if (comando === "converter_msg") {
   const url = args.join(' ').toString();
   const doc = DocumentApp.openByUrl(url);
   const texto = doc.getBody().getText();
@@ -124,13 +155,16 @@ function verificarfuncs() {
   body.appendParagraph(file.getUrl());
   }
 
-  //converte para Base64
-  if (comando === "convert") {
-  const url = args.join(' ').toString();
+
+  //converte de base64 para a extensão desejada
+  if (comando === "converter") {
+  const argumentos = args.join(' ').toString();
+  const url = argumentos.split(' ')[0];
+  const ext = argumentos.split(' ')[1];
   const doc = DocumentApp.openByUrl(url);
   const texto = doc.getBody().getText();
   const texto_decoded = Utilities.base64Decode(texto);
-  file = DriveApp.createFile("converted.txt", texto_decoded, MimeType.PLAIN_TEXT);
+  file = DriveApp.createFile("converted." + ext, texto_decoded);
   body.appendParagraph('Arquivo convertido');
   body.appendParagraph(file.getUrl());
   }
