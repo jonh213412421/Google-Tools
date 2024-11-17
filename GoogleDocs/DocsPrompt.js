@@ -1,9 +1,12 @@
+// cria opção de "run" no documento
 function onOpen() {
   DocumentApp.getUi()
       .createMenu('Script')
       .addItem('Run', 'verificarfuncs')
       .addToUi();
 }
+
+
 
 function verificarfuncs() {
   const doc = DocumentApp.getActiveDocument();
@@ -120,23 +123,34 @@ function verificarfuncs() {
   }
 
 
+  // junta partes de arquivos baixados
   if (comando === "juntar") {
-  let argumentos = args.join(' ');
-  const arquivo_1_id = argumentos.split(' ')[0];
-  const arquivo_2_id = argumentos.split(' ')[1];
-  const ext = argumentos.split(' ')[2];
-  // Pega os arquivos do drive
-  let file1 = DriveApp.getFileById(arquivo_1_id).getBlob().getBytes();
-  let file2 = DriveApp.getFileById(arquivo_2_id).getBlob().getBytes();
-  // Cria um novo array com espaço para armazenar os dois arquivos
-  let combinedBytes = new Uint8Array(file1.length + file2.length);
-  // Copia os bytes para os arquvios
-  combinedBytes.set(new Uint8Array(file1), 0);
-  combinedBytes.set(new Uint8Array(file2), file1.length);
-  let combinedBlob = Utilities.newBlob(combinedBytes, 'application/octet-stream', "juntado." + ext);
-  // Salva o arquivo com nome de juntado. + extensão
-  let arquivo_final = DriveApp.createFile(combinedBlob);
-  body.appendParagraph('link para o arquivo: ' + arquivo_final.getUrl());
+  let aux = [];
+  let totalBytes = 0;
+  const ext = args[args.length -1];
+  const nome = args[args.length -2];
+  body.appendParagraph(ext);
+  // Pega os arquivos do drive -> último argumento é a extensão
+  for (let i = 0; i < args.length - 2; i++) {
+    let file = DriveApp.getFileById(args[i]).getBlob();
+    aux.push(file.getBytes());
+    totalBytes += file.getBytes().length;
+  }
+  // Cria um array Uint8Array grande o suficiente para armazenar todos os bytes dos arquivos
+  let combinedBytes = new Uint8Array(totalBytes);
+  let offset = 0;
+    // Preenche o array com os bytes dos arquivos
+  for (let i = 0; i < aux.length; i++) {
+    combinedBytes.set(new Uint8Array(aux[i]), offset);
+    offset += aux[i].length;
+  }
+  // Cria um novo blob com o conteúdo combinado
+  let combinedBlob = Utilities.newBlob(combinedBytes, 'application/octet-stream', nome + '.' + ext);
+  // Cria o arquivo final no Google Drive
+  let arquivoFinal = DriveApp.createFile(combinedBlob);
+  // Exibe o link para o arquivo
+  body.appendParagraph('Sucesso!');
+  body.appendParagraph('Link para o arquivo: ' + arquivoFinal.getUrl());
   }
 
 
