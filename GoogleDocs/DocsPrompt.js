@@ -42,14 +42,14 @@ function verificarfuncs() {
   if (comando === "url") {
     //extrai página
     const url = args.join(' ');
-    //acessa página e retorna texto
-    const resposta = UrlFetchApp.fetch(url);
-    const conteudo = resposta.getContentText();
+    let resposta = UrlFetchApp.fetch(url);
+    let conteudo = resposta.getContentText();
     const file = DriveApp.createFile("pagina.html", conteudo);
-    body.appendParagraph('link para versão simplificada da página:');
     body.appendParagraph(' ');
     body.appendParagraph(file.getUrl());
     body.appendParagraph(' ');
+    body.appendParagraph("código de resposta: " + resposta.getResponseCode());
+    body.appendParagraph('link para versão simplificada da página:');
     body.appendParagraph(conteudo);
   }
 
@@ -128,7 +128,7 @@ function verificarfuncs() {
   let aux = [];
   let totalBytes = 0;
   const ext = args[args.length -1];
-  const nome = args[args.length -2];
+  const nome_arquivo = args[args.length -2];
   body.appendParagraph(ext);
   // Pega os arquivos do drive -> último argumento é a extensão
   for (let i = 0; i < args.length - 2; i++) {
@@ -144,8 +144,8 @@ function verificarfuncs() {
     combinedBytes.set(new Uint8Array(aux[i]), offset);
     offset += aux[i].length;
   }
-  // Cria um novo blob com o conteúdo combinado
-  let combinedBlob = Utilities.newBlob(combinedBytes, 'application/octet-stream', nome + '.' + ext);
+  // Cria um novo blob com o conteúdo combinado e adiciona a extensão
+  let combinedBlob = Utilities.newBlob(combinedBytes, 'application/octet-stream', nome_arquivo + '.' + ext);
   // Cria o arquivo final no Google Drive
   let arquivoFinal = DriveApp.createFile(combinedBlob);
   // Exibe o link para o arquivo
