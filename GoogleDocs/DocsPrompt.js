@@ -13,9 +13,10 @@ function verificarfuncs() {
   const args = Prompt.trim().split(' ').slice(1);
 
 
+  // envia comandos de ajuda
   if (comando === "-h") {
     body.appendParagraph(' ')
-    body.appendParagraph('Comandos disponíveis:\nmath (expressão) -> avalia uma expressão digitada\nurl (link) -> retorna o html da url digitada\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\ntamanho (link) - retorna o tamanho do arquivo\ndownload_p (link) (início) (fim) - baixa os bytes de início a fim\ndownloadt (link) - baixa o arquivo e codifica em base64\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.')
+    body.appendParagraph('Comandos disponíveis:\n\nmath (expressão) -> avalia uma expressão digitada\n\nurl (link) -> retorna o html da url digitada\n\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\n\ntamanho (link) - retorna o tamanho do arquivo\n\ndownload_p (link) (início) (fim) - baixa os bytes de início a fim\n\ndownloadt (link) - baixa o arquivo e codifica em base64\n\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\n\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\n\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.\n')
   }
 
 
@@ -63,14 +64,14 @@ function verificarfuncs() {
     };
     const resposta = UrlFetchApp.fetch(url, options);
     const size = resposta.getHeaders()['Content-Range'].slice(10);
-    body.appendParagraph("tamanho do arquivo: " + size);   
+    body.appendParagraph("tamanho do arquivo: " + size + " bytes");   
   } catch (e) {
     Logger.log('Erro: ' + e.message);
   }
   }
 
 
-  // Comando "download" - > para baixar arquivos inteiros
+  // Comando "download" - > para baixar arquivos inteiros -> limite: 10mb
   if (comando === "download") {
   const url = args.join(' ');
 
@@ -78,14 +79,12 @@ function verificarfuncs() {
     // Faz o download do conteúdo
     const resposta = UrlFetchApp.fetch(url);
     const blob = resposta.getBlob(); // Obtém o conteúdo como Blob
-
     // Armazena o arquivo temporariamente no Google Drive
     const file = DriveApp.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     const fileUrl = file.getUrl();
     body.appendParagraph(' ')
     body.appendParagraph("link: " + fileUrl);
-
   } catch (e) {
     Logger.log('Erro ao buscar URL: ' + e.message);
     body.appendParagraph('Erro ao buscar URL: ' + e.message);
@@ -120,6 +119,7 @@ function verificarfuncs() {
   }
   }
 
+
   if (comando === "juntar") {
   let argumentos = args.join(' ');
   const arquivo_1_id = argumentos.split(' ')[0];
@@ -150,7 +150,7 @@ function verificarfuncs() {
   for (i = 0; i<texto_decoded.length; i++) {
     texto_final += String.fromCharCode(texto_decoded[i]);
   }
-  file = DriveApp.createFile("converted_bon.txt", texto_final, MimeType.PLAIN_TEXT);
+  file = DriveApp.createFile("msg_convertida.txt", texto_final, MimeType.PLAIN_TEXT);
   body.appendParagraph('Arquivo convertido');
   body.appendParagraph(file.getUrl());
   }
