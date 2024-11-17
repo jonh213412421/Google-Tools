@@ -45,11 +45,13 @@ function verificarfuncs() {
     let resposta = UrlFetchApp.fetch(url);
     let conteudo = resposta.getContentText();
     const file = DriveApp.createFile("pagina.html", conteudo);
+    body.appendParagraph("código de resposta: " + resposta.getResponseCode());
+    body.appendParagraph(' ');
+    body.appendParagraph('link para versão simplificada da página:');
     body.appendParagraph(' ');
     body.appendParagraph(file.getUrl());
     body.appendParagraph(' ');
-    body.appendParagraph("código de resposta: " + resposta.getResponseCode());
-    body.appendParagraph('link para versão simplificada da página:');
+    body.appendParagraph(' ');
     body.appendParagraph(conteudo);
   }
 
