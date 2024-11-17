@@ -7,7 +7,7 @@ function onOpen() {
 }
 
 
-
+// compara texto digitado com os comandos disponíveis
 function verificarfuncs() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
@@ -23,9 +23,9 @@ function verificarfuncs() {
   }
 
 
-  //comando limpar -> limpa inputs
+  //comando limpar -> limpa documento
   if (comando === "limpar") {
-    // Adiciona uma nova linha com "olá"
+    // limpa documento
     body.clear();
   }
   
@@ -57,7 +57,6 @@ function verificarfuncs() {
   // Comando "tamanho" - > pega tamanho do arquivo (url)
   if (comando === "tamanho") {
   url = args.join(' ');
-
   try {
     const options = {
       method: "GET",
@@ -104,7 +103,6 @@ function verificarfuncs() {
   const ext =  argumentos.split(' ')[3];
   body.appendParagraph(inicio);
   body.appendParagraph(fim);
-
   try {
     // Faz uma requisição HTTP para obter a parte desejada
     const headers = { 'Range': 'bytes=' + inicio + '-' + fim }; // Baixar do byte 0 até 2MB (primeiros 3MB)
