@@ -1,7 +1,7 @@
   function dw() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  const chunk = 20000;
+  const chunk = 20000; //BITS
   var size = PropertiesService.getScriptProperties();
   var inicio = PropertiesService.getScriptProperties();
   var fim = PropertiesService.getScriptProperties();
