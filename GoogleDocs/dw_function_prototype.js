@@ -45,6 +45,13 @@
   Logger.log("partes" + num_parts_aux);
   let aux = parseInt(pointer.getProperty('pointer'));
   for (let i = 0; i < num_parts_aux; i++) {
+    if (fim_num_var > size_aux) {
+      let dif = fim_num_var - size_aux;
+      fim_num_var = fim_num_var - dif;
+      Logger.log("ok")
+      Logger.log(fim_num_var);
+      break;
+    }
     aux = i;
     pointer.setProperty('pointer', aux);
     Logger.log("i: " + i);
@@ -59,11 +66,5 @@
     resposta2 = UrlFetchApp.fetch(url, options2);
     const blob = resposta2.getBlob().getBytes();
     Logger.log(blob.length);
-    if (fim_num_var > size_aux) {
-      let dif = fim_num_var - size_aux;
-      fim_num_var = fim_num_var - dif;
-      Logger.log("ok")
-      Logger.log(fim_num_var);
-    }
   }
   }
