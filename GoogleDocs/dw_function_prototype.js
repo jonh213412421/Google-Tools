@@ -12,7 +12,7 @@
   let fim_num_var = chunk;
 
   //inicializa ponteiro
-  pointer.setProperty('pointer', 1);
+  pointer.setProperty('pointer', 0);
 
   //pega tamanho do arquivo e coloca em size
     const options = {
@@ -44,13 +44,12 @@
   let num_parts_aux = Math.ceil(num_parts.getProperty('num_parts'));
   Logger.log("partes" + num_parts_aux);
   let aux = parseInt(pointer.getProperty('pointer'));
-  for (let i = 0; i < num_parts_aux; i++) {
-    aux = i;
+  for (aux; aux < num_parts_aux; pointer.setProperty('pointer', aux++)) {
     pointer.setProperty('pointer', aux);
-    Logger.log("i: " + i);
+    Logger.log("i: " + aux);
     Logger.log("ponteiro: " + pointer.getProperty('pointer'));
-    inicio_num_var = chunk * i;
-    fim_num_var = chunk * (i + 1);
+    inicio_num_var = chunk * aux;
+    fim_num_var = chunk * (aux + 1);
     Logger.log("inicio_num_var: " + inicio_num_var);
     Logger.log("fim_num_var: " + fim_num_var);
     if (inicio_num_var > 0) {
@@ -67,7 +66,7 @@
     const options2 = { 'headers': headers };
     resposta2 = UrlFetchApp.fetch(url, options2);
     const blob = resposta2.getBlob();
-    const file = DriveApp.createFile(blob);
+    const file = DriveApp.createFile(blob).setName(aux);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     Logger.log(blob.length);
   }
