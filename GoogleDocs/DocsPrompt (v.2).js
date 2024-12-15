@@ -8,6 +8,7 @@ function onOpen() {
       .addItem('Get URL', 'url')
       .addItem('Calcular tamanho', 'tamanho')
       .addItem('Converter Mensagem', 'converter_mgs')
+      .addItem('Converter', 'converter')
       .addItem('Download File', 'download')
       .addItem('limpar cache de download', 'comecar_novo_download')
       .addItem('Debug', 'debug')
@@ -224,6 +225,23 @@ function converter_mgs() {
     texto_final += String.fromCharCode(texto_decoded[i]);
   }
   file = DriveApp.createFile("msg_convertida.txt", texto_final, MimeType.PLAIN_TEXT);
+  body.appendParagraph('Arquivo convertido');
+  body.appendParagraph(file.getUrl());
+}
+
+//converte de base64 para a extensão desejada
+function converter() {
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  const Prompt = body.getParagraphs()[0].getText();
+  const args = Prompt.trim().split(' ').slice(1);
+  const argumentos = args.join(' ').toString();
+  const url = argumentos.split(' ')[0];
+  const ext = argumentos.split(' ')[1];
+  const doc2 = DocumentApp.openByUrl(url);
+  const texto = doc2.getBody().getText();
+  const texto_decoded = Utilities.base64Decode(texto);
+  file = DriveApp.createFile("converted." + ext, texto_decoded);
   body.appendParagraph('Arquivo convertido');
   body.appendParagraph(file.getUrl());
 }
