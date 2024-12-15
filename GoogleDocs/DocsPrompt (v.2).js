@@ -20,7 +20,7 @@ function debug() {
   let aux = propriedades.getProperty('pointer');
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  body.appendParagraph(aux);
+  body.appendParagraph("ponteiro: " + aux);
 }
 
 function comecar_novo_download() {
