@@ -15,6 +15,12 @@ function onOpen() {
       .addToUi();
 }
 
+function test() {
+  const a = DriveApp.getFilesByName(0);
+  b = a.next().getId();
+  Logger.log(b);
+}
+
 function debug() {
   var propriedades = PropertiesService.getScriptProperties();
   let aux = propriedades.getProperty('pointer');
@@ -95,19 +101,26 @@ function download() {
       body.appendParagraph("fim_num_var com ajuste: " + fim_num_var);
     }
     const headers = { 'Range': 'bytes=' + inicio_num_var + '-' + fim_num_var};
-    Logger.log(headers);
+    //Logger.log(headers);
     const options2 = { 'headers': headers };
     resposta2 = UrlFetchApp.fetch(url, options2);
     const blob = resposta2.getBlob();
     const file = DriveApp.createFile(blob).setName(aux);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
-    Logger.log(blob.length);
+    //Logger.log(blob.length);
 
     //reseta variáveis ao final do download
     if (num_parts_aux - 1 == aux) {
       comecar_novo_download()
       body.appendParagraph("pointeiro final (tem que ser igual a 0): " + propriedades.getProperty('pointer'));
       body.appendParagraph("Download concluído com sucesso");
+      }
+    
+    //imprime id das partes
+    propriedades.setProperty(aux, file.getId());
+    for (i = 0; i < num_parts_aux; i ++) {
+      body.appendParagraph("ID's das partes: ");
+      body.appendParagraph(propriedades.getProperty(i));
       }
     }
   }
