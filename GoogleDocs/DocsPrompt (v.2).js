@@ -10,14 +10,14 @@ function onOpen() {
       .addItem('Converter Mensagem', 'converter_mgs')
       .addItem('Converter', 'converter')
       .addItem('Download File', 'download')
-      .addItem('limpar cache de download', 'comecar_novo_download')
+      .addItem('Limpar cache de download', 'comecar_novo_download')
       .addItem('Debug', 'debug')
       .addToUi();
 }
 
 function debug() {
-  var test = PropertiesService.getScriptProperties();
-  let aux = test.getProperty('pointer');
+  var propriedades = PropertiesService.getScriptProperties();
+  let aux = propriedades.getProperty('pointer');
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
   body.appendParagraph(aux);
@@ -25,33 +25,22 @@ function debug() {
 
 function comecar_novo_download() {
   const chunk = 10000000;
-  var pointer = PropertiesService.getScriptProperties();
-  pointer.setProperty('pointer', 0);
+  var propriedades = PropertiesService.getScriptProperties();
+  propriedades.setProperty('pointer', 0);
   let inicio_num_var = 0;
   let fim_num_var = chunk;
-  var inicio = PropertiesService.getScriptProperties();
-  var fim = PropertiesService.getScriptProperties();
-  inicio.setProperty('inicio', inicio_num_var);
-  fim.setProperty('fim', fim_num_var);
+  propriedades.setProperty('inicio', inicio_num_var);
+  propriedades.setProperty('fim', fim_num_var);
 }
 
 function download() {
-  //variáveis
   const doc = DocumentApp.getActiveDocument();
-  const chunk = 10000000;
-  var size = PropertiesService.getScriptProperties();
-  var inicio = PropertiesService.getScriptProperties();
-  var fim = PropertiesService.getScriptProperties();
-  var num_parts = PropertiesService.getScriptProperties();
-  var pointer = PropertiesService.getScriptProperties();
-
-  //get prompt from text body
   const body = doc.getBody();
-  const Prompt = body.getParagraphs()[0].getText();
-  const comando = Prompt.trim().split(' ')[0];
-  const args = Prompt.trim().split(' ').slice(1);
-  let argumentos = args.join(' ');
-  const url = argumentos.split(' ')[0];
+  //pega prompt
+  const url = body.getParagraphs()[0].getText();
+  //variáveis
+  const chunk = 10000000;
+  var propriedades = PropertiesService.getScriptProperties();
 
   //pega tamanho do arquivo e coloca em size
     const options = {
@@ -62,12 +51,12 @@ function download() {
     };
   const resposta = UrlFetchApp.fetch(url, options);
   const tamanho = resposta.getHeaders()['Content-Range'].slice(10);
-  size.setProperty('size', tamanho);
-  let size_aux = parseInt(size.getProperty('size'));
+  propriedades.setProperty('size', tamanho);
+  let size_aux = parseInt(propriedades.getProperty('size'));
 
   //calcula número de partes e armazena em num_parts
-  const num_partes = size.getProperty('size') / chunk;
-  num_parts.setProperty('num_parts', num_partes);
+  const num_partes = propriedades.getProperty('size') / chunk;
+  propriedades.setProperty('num_parts', num_partes);
 
   //chama dw
   download_parts(url)
@@ -79,17 +68,17 @@ function download() {
   //Logger.log(size.getProperty('fim'));
 
   //baixa parte
-  let num_parts_aux = Math.ceil(num_parts.getProperty('num_parts'));
+  let num_parts_aux = Math.ceil(propriedades.getProperty('num_parts'));
   body.appendParagraph("partes: " + num_parts_aux);
-  let aux = parseInt(pointer.getProperty('pointer'));
-  for (aux; aux < num_parts_aux; pointer.setProperty('pointer', aux++)) {
-    pointer.setProperty('pointer', aux);
+  let aux = parseInt(propriedades.getProperty('pointer'));
+  for (aux; aux < num_parts_aux; propriedades.setProperty('pointer', aux++)) {
+    propriedades.setProperty('pointer', aux);
     body.appendParagraph("i: " + aux);
-    //Logger.log("ponteiro: " + pointer.getProperty('pointer'));
+    //Logger.log("ponteiro: " + propriedades.getProperty('pointer'));
     let inicio_num_var = chunk * aux;
     let fim_num_var = chunk * (aux + 1);
-    inicio.setProperty('inicio', inicio_num_var);
-    inicio.setProperty('fim', fim_num_var);
+    propriedades.setProperty('inicio', inicio_num_var);
+    propriedades.setProperty('fim', fim_num_var);
     body.appendParagraph("inicio_num_var: " + inicio_num_var);
     body.appendParagraph("fim_num_var: " + fim_num_var);
 
@@ -100,7 +89,7 @@ function download() {
     if (fim_num_var > size_aux) {
       let dif = fim_num_var - size_aux;
       fim_num_var = fim_num_var - dif;
-      body.appendParagraph("ok")
+      body.appendParagraph("Download concluído.")
       body.appendParagraph("fim_num_var com ajuste: " + fim_num_var);
     }
     const headers = { 'Range': 'bytes=' + inicio_num_var + '-' + fim_num_var};
@@ -111,7 +100,7 @@ function download() {
     const file = DriveApp.createFile(blob).setName(aux);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     Logger.log(blob.length);
-  }
+    }
   }
 }
 
