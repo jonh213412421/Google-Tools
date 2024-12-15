@@ -100,6 +100,13 @@ function download() {
     const file = DriveApp.createFile(blob).setName(aux);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     Logger.log(blob.length);
+
+    //reseta variáveis ao final do download
+    if (num_parts_aux - 1 == aux) {
+      comecar_novo_download()
+      body.appendParagraph("pointeiro final (tem que ser igual a 0): " + propriedades.getProperty('pointer'));
+      body.appendParagraph("Download concluído com sucesso");
+      }
     }
   }
 }
