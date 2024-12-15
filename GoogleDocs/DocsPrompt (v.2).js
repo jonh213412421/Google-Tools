@@ -17,7 +17,7 @@ function onOpen() {
 
 function debug() {
   var test = PropertiesService.getScriptProperties();
-  aux = test.getProperty('pointer');
+  let aux = test.getProperty('pointer');
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
   body.appendParagraph(aux);
