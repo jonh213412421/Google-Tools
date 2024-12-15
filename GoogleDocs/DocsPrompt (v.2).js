@@ -15,12 +15,6 @@ function onOpen() {
       .addToUi();
 }
 
-function test() {
-  const a = DriveApp.getFilesByName(0);
-  b = a.next().getId();
-  Logger.log(b);
-}
-
 function debug() {
   var propriedades = PropertiesService.getScriptProperties();
   let aux = propriedades.getProperty('pointer');
