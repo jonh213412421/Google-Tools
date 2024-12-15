@@ -86,6 +86,8 @@ function download() {
     if (inicio_num_var > 0) {
       inicio_num_var += 1;
     }
+
+    //ajusta parte final
     if (fim_num_var > size_aux) {
       let dif = fim_num_var - size_aux;
       fim_num_var = fim_num_var - dif;
