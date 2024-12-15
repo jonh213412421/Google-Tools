@@ -7,7 +7,7 @@ function onOpen() {
       .addItem('Calcular', 'math')
       .addItem('Get URL', 'url')
       .addItem('Calcular tamanho', 'tamanho')
-      .addItem('Run', 'verificarfuncs')
+      .addItem('Converter Mensagem', 'converter_mgs')
       .addItem('Download File', 'download')
       .addItem('limpar cache de download', 'comecar_novo_download')
       .addItem('Debug', 'debug')
@@ -35,7 +35,7 @@ function comecar_novo_download() {
 }
 
 function download() {
-    //variáveis
+  //variáveis
   const doc = DocumentApp.getActiveDocument();
   const chunk = 10000000;
   var size = PropertiesService.getScriptProperties();
@@ -119,7 +119,7 @@ function ajuda() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
   body.appendParagraph(' ');
-  body.appendParagraph('Comandos disponíveis:\n\nmath (expressão) -> avalia uma expressão digitada\n\nurl (link) -> retorna o html da url digitada\n\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\n\ntamanho (link) - retorna o tamanho do arquivo\n\ndownload_p (link) (início) (fim) - baixa os bytes de início a fim\n\ndownloadt (link) - baixa o arquivo e codifica em base64\n\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\n\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\n\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.\n');
+  body.appendParagraph('Comandos disponíveis:\n\nmath (expressão) -> avalia uma expressão digitada\n\nurl (link) -> retorna o html da url digitada\n\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\n\ntamanho (link) - retorna o tamanho do arquivo\n\ndownload_p (link) (início) (fim) - baixa os bytes de início a fim\n\ndownloadt (link) - baixa o arquivo e codifica em base64\n\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\n\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\n\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.\ncopy /b (0.pdf + 1.pdf + 2.pdf...) (arquivo out) - junta partes em um novo pdf');
   }
 
 //comando limpar -> limpa documento
@@ -207,4 +207,23 @@ function juntar() {
   // Exibe o link para o arquivo
   body.appendParagraph('Sucesso!');
   body.appendParagraph('Link para o arquivo: ' + arquivoFinal.getUrl());
+}
+
+//converte para texto -> decodifica de base64 para texto
+function converter_mgs() {  
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  const Prompt = body.getParagraphs()[0].getText();
+  const args = Prompt.trim().split(' ').slice(1);
+  const url = args.join(' ').toString();
+  const doc2 = DocumentApp.openByUrl(url);
+  const texto = doc2.getBody().getText();
+  const texto_decoded = Utilities.base64Decode(texto);
+  let texto_final = '';
+  for (i = 0; i<texto_decoded.length; i++) {
+    texto_final += String.fromCharCode(texto_decoded[i]);
+  }
+  file = DriveApp.createFile("msg_convertida.txt", texto_final, MimeType.PLAIN_TEXT);
+  body.appendParagraph('Arquivo convertido');
+  body.appendParagraph(file.getUrl());
 }
