@@ -9,7 +9,8 @@ function onOpen() {
       .addItem('Calcular tamanho', 'tamanho')
       .addItem('Converter Mensagem', 'converter_mgs')
       .addItem('Converter', 'converter')
-      .addItem('Download File', 'download')
+      .addItem('Download Arquivo Longo', 'download_longo')
+      .addItem('Download Arquivo Curto', 'download_curto')
       .addItem('Limpar cache de download', 'comecar_novo_download')
       .addItem('Debug', 'debug')
       .addToUi();
@@ -24,7 +25,7 @@ function debug() {
 }
 
 function comecar_novo_download() {
-  const chunk = 10000000;
+  const chunk = 10000000; //bytes
   var propriedades = PropertiesService.getScriptProperties();
   propriedades.setProperty('pointer', 0);
   let inicio_num_var = 0;
@@ -33,7 +34,7 @@ function comecar_novo_download() {
   propriedades.setProperty('fim', fim_num_var);
 }
 
-function download() {
+function download_longo() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
   //pega prompt
@@ -112,12 +113,21 @@ function download() {
     
     //imprime id das partes
     propriedades.setProperty(aux, file.getId());
+    body.appendParagraph("ID's das partes: ");
     for (i = 0; i < num_parts_aux; i ++) {
-      body.appendParagraph("ID's das partes: ");
       body.appendParagraph(propriedades.getProperty(i));
       }
     }
   }
+}
+
+function download_curto() {
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  url = body.getParagraphs()[0].getText();
+  let resposta = UrlFetchApp.fetch(url);
+  let blob = resposta.getBlob();
+  file = DriveApp.createFile(blob).setName('test');
 }
 
 // envia comandos de ajuda
@@ -125,7 +135,7 @@ function ajuda() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
   body.appendParagraph(' ');
-  body.appendParagraph('Comandos disponíveis:\n\nmath (expressão) -> avalia uma expressão digitada\n\nurl (link) -> retorna o html da url digitada\n\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\n\ntamanho (link) - retorna o tamanho do arquivo\n\ndownload_p (link) (início) (fim) - baixa os bytes de início a fim\n\ndownloadt (link) - baixa o arquivo e codifica em base64\n\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\n\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\n\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.\ncopy /b (0.pdf + 1.pdf + 2.pdf...) (arquivo out) - junta partes em um novo pdf');
+  body.appendParagraph('Comandos disponíveis:\n\nmath (expressão) -> avalia uma expressão digitada\n\nurl (link) -> retorna o html da url digitada\n\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\n\ntamanho (link) - retorna o tamanho do arquivo\ndownloadt (link) - baixa o arquivo e codifica em base64\n\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\n\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\n\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.\ncopy /b (0.pdf + 1.pdf + 2.pdf...) (arquivo out) - junta partes em um novo pdf');
   }
 
 //comando limpar -> limpa documento
