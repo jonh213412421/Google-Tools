@@ -60,9 +60,9 @@ function download_longo() {
   propriedades.setProperty('num_parts', num_partes);
 
   //chama dw
-  download_parts(url)
+  download_partes(url)
 
-  function download_parts(url) {
+  function download_partes(url) {
   //debug
   //Logger.log(size.getProperty('size'));
   //Logger.log(size.getProperty('inicio'));
@@ -121,13 +121,18 @@ function download_longo() {
   }
 }
 
+// baixa o arquivo inteiro de uma vez
 function download_curto() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  url = body.getParagraphs()[0].getText();
+  const url = body.getParagraphs()[0].getText();
+  let nome_arquivo = url.split('/');
+  let nome_lenght = nome_arquivo.length;
+  nome_arquivo = nome_arquivo[nome_lenght - 1];
+  body.appendParagraph(nome_arquivo);
   let resposta = UrlFetchApp.fetch(url);
   let blob = resposta.getBlob();
-  file = DriveApp.createFile(blob).setName('test');
+  file = DriveApp.createFile(blob).setName(nome_arquivo);
 }
 
 // envia comandos de ajuda
