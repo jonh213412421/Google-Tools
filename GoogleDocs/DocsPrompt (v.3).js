@@ -17,31 +17,9 @@ function onOpen() {
       .addToUi();
 }
 
-function storeVector() {
-    var propriedades = PropertiesService.getScriptProperties();
-    var myArray = [];  // Example vector (array)
-    myArray.push("oi");
-    // Convert the array to a JSON string
-    var jsonString = JSON.stringify(myArray);
-
-    // Store the array as a property
-    propriedades.setProperty('myArrayKey', jsonString);
-    vetor = propriedades.getProperty('myArrayKey');
-    vetor0 = JSON.parse(vetor)[0]
-    console.log(vetor0);
-}
-
-function storeVector2() {
+function inserir_na_memoria() {
   var propriedades = PropertiesService.getScriptProperties();
-  if (propriedades.getProperty('download_num') == null) {
-    propriedades.setProperty('download_num', 0);
-  }
-  console.log(propriedades.getProperty('download_num'));
-}
-
-function teste() {
-  var propriedades = PropertiesService.getScriptProperties();
-  const metadados = ["https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz", 213123, 21, 3, "https://www.python.org/ftp/python/3.12.8/Python-4.12.8.tgz"]
+  const metadados = ["https://www.python.org/ftp/python/3.12.8/Python-2.12.8.tgz", 213123, 21, 3, "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz", 27078774, 2, 1, "https://www.python.org/ftp/python/3.12.8/Python-5.12.8.tgz", 213123, 21, 3]
   propriedades.setProperty("downloads", JSON.stringify(metadados));
   console.log("valores no vetor: " + propriedades.getProperty("downloads"));
 }
@@ -59,12 +37,14 @@ function debug() {
 function downloads_ativos() {
   var propriedades = PropertiesService.getScriptProperties();
   let aux = propriedades.getProperty('downloads');
-  aux = JSON.parse(aux);
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
+  aux = aux.split(",");
   body.appendParagraph("downloads ativos:\n");
-  for (let i = 0; i < aux.length; i++)
-    body.appendParagraph(aux[i]);
+  for (let i = 0; i < aux.length; i += 4) {
+      body.appendParagraph("arquivo: " + aux[i] + " tamanho: " + aux[i + 1] + " número de partes: " + aux[i + 2] + "  partes baixadas: " + aux[i + 3]);
+      body.appendParagraph(' ');
+  }
 }
 
 function limpar_cache() {
@@ -78,25 +58,25 @@ function download_longo() {
   //tamanho do chunk
   const chunk = 15000000;
   //vetor que armazena metadados da download
-  let arquivo = "https://www.python.org/ftp/python/3.12.8/Python-4.12.8.tgz" // será a url
+  let url = "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz" // será a url
   let metadados = [];
   //metadados.push(arquivo); //retirar depois
   let propriedades = PropertiesService.getScriptProperties();
   //IF-ELSE -> se já tiver arquivos na pilha, pegue-os. Caso contrário, carregue apenas a url solicitada
 
   if (propriedades.getProperty('downloads') == null) {
-    metadados.push(arquivo);
-    console.log("na propriedade downloads: " + propriedades.getProperty('downloads'));
+    metadados.push(url);
+    console.log("propriedade de downloads vazia");
   } else {
     let aux = JSON.parse(propriedades.getProperty('downloads'));
-    console.log(aux);
+    console.log("aux inicial: " + aux);
     //verifica se valor é único
     let j = 0;
     let k = 0;
     //pega todos os itens da pilha e coloca no vetor metadados. Isso é feito para poder acrescentar uma nova url no topo, eventualmente
     for (let i = 0; i < aux.length; i ++) {
       console.log("aux no loop de identificação: " + aux[i]);
-      if (aux[i] == arquivo) {
+      if (aux[i] == url) {
         //pega índice do arquivo
         j += 1;
         k = i;
@@ -117,18 +97,49 @@ function download_longo() {
       let num_partes = metadados[k + 2];
       console.log("num_partes_download_salvo: " + num_partes);
       let parte_atual = metadados[k + 3];
-      console.log("parte atual_download_salvo: " + num_partes);
-      //PAREI AQUI
+      console.log("parte atual_download_salvo: " + parte_atual);
+      for(parte_atual; parte_atual < num_partes; parte_atual++) {
+        let inicio;
+        let final = parte_atual * chunk + chunk;
+        if (parte_atual == 0) {
+          inicio = parte_atual * chunk;
+        }
+        if (parte_atual > 0) {
+          inicio = parte_atual * chunk + 1;
+        }
+        if (parte_atual == num_partes - 1) {
+          let aux = parte_atual * chunk;
+          aux = aux - tamanho;
+          final = parte_atual * chunk - aux;
+          console.log("última parte ajustada: " + final);
+        }
+        console.log("inicio download_continuado: " + inicio);
+        console.log("final download_continuado: " + final);
+        const headers = { 'Range': 'bytes=' + inicio + '-' + final};
+        const opcoes = { 'headers': headers };
+        let resposta = UrlFetchApp.fetch(url, opcoes);
+        let blob = resposta.getBlob();
+        DriveApp.createFile(blob).setName(url + "_parte_" + parte_atual);
+        propriedades.setProperty("downloads", JSON.stringify(metadados));
+        console.log("inicio_loop_download_continuado: " + inicio);
+        console.log("fim_loop_download_continuado: " + final);
+        console.log("metadados_loop_download_continuado: " + JSON.stringify(metadados));
+        console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
+      }
+      metadados = metadados.slice(0, k).concat(metadados.slice(k + 3, metadados.length));
+      console.log("metadados após slice de download_continuado: " + JSON.stringify(metadados));
+      propriedades.setProperty("downloads", JSON.stringify(metadados));
+      console.log("downloads depois do pop download_continuado: " + propriedades.getProperty("downloads"));
     } else {
     //download novo
-    metadados.push(arquivo);
+    metadados.push(url);
     const opcoes = {
       method: "GET",
       headers: {
         Range: "bytes=0-0",
       },
     };
-    const resposta_tamanho = UrlFetchApp.fetch(arquivo, opcoes);
+    const resposta_tamanho = UrlFetchApp.fetch(url, opcoes);
     tamanho = resposta_tamanho.getHeaders()['Content-Range'].slice(10);
     console.log("tamanho_download_novo: " + tamanho);
     //aqui colocou o tamanho no vetor
@@ -161,9 +172,9 @@ function download_longo() {
       }
       const headers = { 'Range': 'bytes=' + inicio + '-' + final};
       const opcoes = { 'headers': headers };
-      let resposta = UrlFetchApp.fetch(arquivo, opcoes);
+      let resposta = UrlFetchApp.fetch(url, opcoes);
       let blob = resposta.getBlob();
-      DriveApp.createFile(blob).setName(arquivo + "_parte_" + i);
+      DriveApp.createFile(blob).setName(url + "_parte_" + i);
       metadados[index_parte_atual] = i;
       propriedades.setProperty("downloads", JSON.stringify(metadados));
       console.log("inicio_loop: " + inicio);
