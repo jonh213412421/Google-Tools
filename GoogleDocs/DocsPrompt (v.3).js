@@ -214,7 +214,10 @@ function download_longo() {
         console.log("metadados_loop_download_continuado: " + JSON.stringify(metadados));
         console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
       }
+      metadados[k] = '"' + metadados[k] + '"';
       metadados = metadados.slice(0, k).concat(metadados.slice(k + 3, metadados.length));
+      //JSON.stringify(metadados).replace(/\"/g, '');
+      body.appendParagraph(JSON.stringify(metadados));
       console.log("metadados após slice de download_continuado: " + JSON.stringify(metadados));
       propriedades.setProperty("downloads", JSON.stringify(metadados));
       console.log("downloads depois do pop download_continuado: " + propriedades.getProperty("downloads"));
