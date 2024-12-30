@@ -10,6 +10,7 @@ function onOpen() {
       .addItem('Converter Mensagem', 'converter_mgs')
       .addItem('Converter', 'converter')
       .addItem('Download Arquivo Longo', 'download_longo')
+      .addItem('Continuar Download', 'continuar_download')
       .addItem('Download Arquivo Curto', 'download_curto')
       .addItem('Downloads Ativos', 'downloads_ativos')
       .addItem('Limpar cache de download', 'comecar_novo_download')
@@ -47,6 +48,16 @@ function downloads_ativos() {
   }
 }
 
+function continuar_download() {
+  let doc = DocumentApp.getActiveDocument();
+  let body = doc.getBody();
+  let url = body.getParagraphs()[0].getText();
+  console.log("continuando download da URL: " + url);
+  download_longo_continuar(url);
+  body.appendParagraph("Download terminado");
+  console.log("Download terminado");
+}
+
 function limpar_cache() {
   let propriedades = PropertiesService.getScriptProperties();
   propriedades.deleteProperty('downloads');
@@ -58,10 +69,10 @@ function download_longo() {
   //pega corpo do documento
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
+  //let url = body.getParagraphs()[0].getText();
   //tamanho do chunk
   const chunk = 15000000;
   //vetor que armazena metadados da download
-  //substituir com body ASSIM QUE TERMINAREM OS TESTES
   let url = "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz" // será a url
   let metadados = [];
   //metadados.push(arquivo); //retirar depois
