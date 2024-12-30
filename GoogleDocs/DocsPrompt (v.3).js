@@ -32,7 +32,7 @@ function debug() {
   let aux = propriedades.getProperty('downloads');
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  console.log("memória: " + JSON.stringify(aux));
+  console.log("memória: " + JSON.parse(aux));
   body.appendParagraph("memória: " + JSON.stringify(aux));
 }
 
@@ -66,6 +66,8 @@ function limpar_cache() {
 
 //TESTAR!
 function download_longo_continuar(url) {
+  let doc = DocumentApp.getActiveDocument();
+  let body = doc.getBody();
   const chunk = 15000000;
   var propriedades = PropertiesService.getScriptProperties();
   let metadados = [];
@@ -124,11 +126,13 @@ function download_longo_continuar(url) {
     console.log("metadados_loop_download_continuado: " + JSON.stringify(metadados));
     console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
   }
-  metadados = metadados.slice(0, k).concat(metadados.slice(k + 3, metadados.length));
-  metadados = JSON.stringify(metadados).replace(/\"/g, '');
   metadados[k] = '"' + metadados[k] + '"';
+  metadados = metadados.slice(0, k).concat(metadados.slice(k + 3, metadados.length));
+  console.log("metadados após slice 1: " + metadados);
+  //JSON.stringify(metadados).replace(/\"/g, '');
+  body.appendParagraph(JSON.stringify(metadados));
   console.log("metadados após slice de download_continuado: " + JSON.stringify(metadados));
-  propriedades.setProperty("downloads", metadados);
+  propriedades.setProperty("downloads", JSON.stringify(metadados));
   console.log("downloads depois do pop download_continuado: " + propriedades.getProperty("downloads"));
 }
 
