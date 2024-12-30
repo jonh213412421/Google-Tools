@@ -41,11 +41,15 @@ function downloads_ativos() {
   let aux = propriedades.getProperty('downloads');
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
+  console.log(aux);
   aux = aux.split(",");
+  console.log(aux.length);
   body.appendParagraph("downloads ativos:\n");
-  for (let i = 0; i < aux.length; i += 4) {
-      body.appendParagraph("arquivo: " + aux[i] + " tamanho: " + aux[i + 1] + " número de partes: " + aux[i + 2] + "  partes baixadas: " + aux[i + 3]);
+  let j = 1;
+  for (let i = 0; i < aux.length - 1; i += 5) {
+      body.appendParagraph("arquivo " + j + " " + aux[i] + " tamanho: " + aux[i + 1] + " número de partes: " + aux[i + 2] + "  partes baixadas: " + aux[i + 3]);
       body.appendParagraph(' ');
+      j += 1;
   }
 }
 
