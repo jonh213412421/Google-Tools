@@ -29,10 +29,11 @@ function inserir_na_memoria() {
 // retorna propriedades
 function debug() {
   var propriedades = PropertiesService.getScriptProperties();
-  let aux = propriedades.getProperty('pointer');
+  let aux = propriedades.getProperty('downloads');
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  body.appendParagraph("ponteiro: " + aux);
+  console.log("memória: " + JSON.stringify(aux));
+  body.appendParagraph("memória: " + JSON.stringify(aux));
 }
 
 function downloads_ativos() {
@@ -63,6 +64,74 @@ function limpar_cache() {
   propriedades.deleteProperty('downloads');
 }
 
+//TESTAR!
+function download_longo_continuar(url) {
+  const chunk = 15000000;
+  var propriedades = PropertiesService.getScriptProperties();
+  let metadados = [];
+  let aux = JSON.parse(propriedades.getProperty('downloads'));
+  console.log("aux inicial: " + aux);
+  //verifica se valor é único
+  let j = 0;
+  let k = 0;
+  //pega todos os itens da pilha e coloca no vetor metadados. Isso é feito para poder acrescentar uma nova url no topo, eventualmente
+  for (let i = 0; i < aux.length; i ++) {
+    console.log("aux no loop de identificação: " + aux[i]);
+    if (aux[i] == url) {
+      //pega índice do arquivo
+      j += 1;
+      k = i;
+      console.log("j: " + j);
+      console.log("k: " + k);
+      console.log("aux no loop de identificação: " + aux[i]);
+    }
+    metadados.push(aux[i]);
+    console.log("pushed: " + aux[i]);
+  }
+  console.log("metadados_download_salvo: " + JSON.stringify(metadados));
+  console.log("nome_download_salvo: " + metadados[k]);
+  let tamanho = metadados[k + 1];
+  console.log("tamanho_download_salvo: " + tamanho);
+  let num_partes = metadados[k + 2];
+  console.log("num_partes_download_salvo: " + num_partes);
+  let parte_atual = metadados[k + 3];
+  console.log("parte atual_download_salvo: " + parte_atual);
+  for(parte_atual; parte_atual < num_partes; parte_atual++) {
+    let inicio;
+    let final = parte_atual * chunk + chunk;
+    if (parte_atual == 0) {
+      inicio = parte_atual * chunk;
+    }
+    if (parte_atual > 0) {
+      inicio = parte_atual * chunk + 1;
+    }
+    if (parte_atual == num_partes - 1) {
+      let aux = parte_atual * chunk;
+      aux = aux - tamanho;
+      final = parte_atual * chunk - aux;
+      console.log("última parte ajustada: " + final);
+    }
+    console.log("inicio download_continuado: " + inicio);
+    console.log("final download_continuado: " + final);
+    const headers = { 'Range': 'bytes=' + inicio + '-' + final};
+    const opcoes = { 'headers': headers };
+    let resposta = UrlFetchApp.fetch(url, opcoes);
+    let blob = resposta.getBlob();
+    DriveApp.createFile(blob).setName(url + "_parte_" + parte_atual);
+    propriedades.setProperty("downloads", JSON.stringify(metadados));
+    console.log("inicio_loop_download_continuado: " + inicio);
+    console.log("fim_loop_download_continuado: " + final);
+    console.log("metadados_loop_download_continuado: " + JSON.stringify(metadados));
+    console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
+  }
+  metadados = metadados.slice(0, k).concat(metadados.slice(k + 3, metadados.length));
+  metadados = JSON.stringify(metadados).replace(/\"/g, '');
+  metadados[k] = '"' + metadados[k] + '"';
+  console.log("metadados após slice de download_continuado: " + JSON.stringify(metadados));
+  propriedades.setProperty("downloads", metadados);
+  console.log("downloads depois do pop download_continuado: " + propriedades.getProperty("downloads"));
+}
+
 // zera propriedades
 //valores a serem armazenados: [url, tamanho, numero de partes, parte atual]
 function download_longo() {
@@ -73,7 +142,7 @@ function download_longo() {
   //tamanho do chunk
   const chunk = 15000000;
   //vetor que armazena metadados da download
-  let url = "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz" // será a url
+  let url = "https://www.python.org/ftp/python/3.12.8/Python-5.12.8.tgz" // será a url
   let metadados = [];
   //metadados.push(arquivo); //retirar depois
   let propriedades = PropertiesService.getScriptProperties();
