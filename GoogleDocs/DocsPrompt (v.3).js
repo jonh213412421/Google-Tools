@@ -5,7 +5,7 @@ function onOpen() {
       .addItem('Limpar', 'limpar')
       .addItem('Ajuda', 'ajuda')
       .addItem('Calcular', 'math')
-      .addItem('Get URL', 'url')
+      .addItem('Ir', 'url')
       .addItem('Calcular tamanho', 'tamanho')
       .addItem('Converter Mensagem', 'converter_mgs')
       .addItem('Converter', 'converter')
@@ -146,11 +146,10 @@ function download_longo() {
   //pega corpo do documento
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  //let url = body.getParagraphs()[0].getText();
+  let url = body.getParagraphs()[0].getText();
   //tamanho do chunk
   const chunk = 15000000;
   //vetor que armazena metadados da download
-  let url = "https://www.python.org/ftp/python/3.12.8/Python-5.12.8.tgz" // será a url
   let metadados = [];
   //metadados.push(arquivo); //retirar depois
   let propriedades = PropertiesService.getScriptProperties();
@@ -307,7 +306,7 @@ function ajuda() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
   body.appendParagraph(' ');
-  body.appendParagraph('Comandos disponíveis:\n\nmath (expressão) -> avalia uma expressão digitada\n\nurl (link) -> retorna o html da url digitada\n\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\n\ntamanho (link) - retorna o tamanho do arquivo\ndownloadt (link) - baixa o arquivo e codifica em base64\n\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\n\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\n\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.\ncopy /b (0.pdf + 1.pdf + 2.pdf...) (arquivo out) - junta partes em um novo pdf');
+  body.appendParagraph('Comandos disponíveis:\n\nmath (expressão) -> avalia uma expressão digitada\n\nurl (link) -> retorna o html da url digitada\n\ndownload (link) -> faz o download do arquivo para o drive e retorna com o link\n\ntamanho (link) - retorna o tamanho do arquivo\ndownloadt (link) - baixa o arquivo e codifica em base64\n\nconverter_msg (url do arquivo) - converte arquivo .txt de base64 para string\n\nconverter (url do arquivo) (extensão) - converte arquivo de base64 para a extensão desejada\n\njuntar (id arquivo 1) (id arquivo 2) (extensão) - junta partes de arquivos que estão no drive.\ncopy /b (0.pdf + 1.pdf + 2.pdf...) (arquivo out) - junta partes em um novo pdf\n\nDicas php: ads.php? -> página de download\nget.php -> link de download\nsearch.php?req -> pesquisa');
   }
 
 //comando limpar -> limpa documento
