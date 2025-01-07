@@ -156,9 +156,11 @@ function download_longo() {
   //IF-ELSE -> se já tiver arquivos na pilha, pegue-os. Caso contrário, carregue apenas a url solicitada
 
   if (propriedades.getProperty('downloads') == null) {
-    metadados.push(url);
+    propriedades.setProperty('downloads', JSON.stringify([1, 2, 3]));
     console.log("propriedade de downloads vazia");
-  } else {
+  } 
+  
+  if (propriedades.getProperty('downloads') != null) {
     let aux = JSON.parse(propriedades.getProperty('downloads'));
     console.log("aux inicial: " + aux);
     //verifica se valor é único
