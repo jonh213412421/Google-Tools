@@ -13,7 +13,7 @@ function onOpen() {
       .addItem('Continuar Download', 'continuar_download')
       .addItem('Download Arquivo Curto', 'download_curto')
       .addItem('Downloads Ativos', 'downloads_ativos')
-      .addItem('Limpar cache de download', 'comecar_novo_download')
+      .addItem('Limpar cache de download', 'limpar_cache')
       .addItem('Debug', 'debug')
       .addToUi();
 }
@@ -69,7 +69,8 @@ function limpar_cache() {
 }
 
 //TESTAR!
-function download_longo_continuar(url) {
+function download_longo_continuar() {
+  let url = "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz"
   let doc = DocumentApp.getActiveDocument();
   let body = doc.getBody();
   const chunk = 15000000;
@@ -122,11 +123,9 @@ function download_longo_continuar(url) {
       console.log("metadados_loop_download_continuado: " + JSON.stringify(metadados));
       console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
     } catch (e) {
-      if (String(e).includes('<title>416')) {
-        metadados.pop();
-        metadados.pop();
+      console.log(String(e));
+      if (String(e).includes('code 416') || String(e).includes('<title>416')) {
         body.appendParagraph('download concluído');
-        propriedades.setProperty("downloads", JSON.stringify(metadados));
         console.log("downloads depois do pop: " + propriedades.getProperty("downloads"));
         return 1;
       }
@@ -212,7 +211,7 @@ function download_longo() {
           console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
         } catch(e) {
         console.log(e);
-        if (String(e).includes('<title>416')) {
+        if (String(e).includes('code 416') || String(e).includes('<title>416')) {
           metadados.pop();
           metadados.pop();
           body.appendParagraph('download concluído');
@@ -263,7 +262,7 @@ function download_longo() {
         console.log("downloads_loop: " + propriedades.getProperty("downloads"));
       } catch(e) {
         console.log(e);
-        if (String(e).includes('<title>416')) {
+        if (String(e).includes('code 416') || String(e).includes('<title>416')) {
           metadados.pop();
           metadados.pop();
           body.appendParagraph('download concluído');
