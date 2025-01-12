@@ -18,17 +18,6 @@ function onOpen() {
       .addToUi();
 }
 
-function test() {
-  const doc = DocumentApp.getActiveDocument();
-  const url = "https://libgen.li/get.php?md5=d7d397c98d7505c3274e8a1d2b068a9e&key=7VHDL54QXBNGOE8F";
-
-  const headers = { 'Range': 'bytes=' + 20000 + '-' + 100000000000000};
-  const opcoes = { 'headers': headers };
-  let resposta = UrlFetchApp.fetch(url, opcoes);
-  let blob = resposta.getBlob();
-  file = DriveApp.createFile(blob).setName("teste");
-}
-
 function inserir_na_memoria() {
   var propriedades = PropertiesService.getScriptProperties();
   const metadados = ["https://www.python.org/ftp/python/3.12.8/Python-2.12.8.tgz", 1, "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz", 1, "https://www.python.org/ftp/python/3.12.8/Python-5.12.8.tgz", 3];
@@ -57,8 +46,8 @@ function downloads_ativos() {
   console.log(aux.length);
   body.appendParagraph("downloads ativos:\n");
   let j = 1;
-  for (let i = 0; i < aux.length - 1; i += 5) {
-      body.appendParagraph("arquivo " + j + " " + aux[i] + " tamanho: " + aux[i + 1] + " número de partes: " + aux[i + 2] + "  partes baixadas: " + aux[i + 3]);
+  for (let i = 0; i < aux.length - 1; i += 2) {
+      body.appendParagraph("arquivo " + j + aux[i] + " partes baixadas: " + aux[i + 1]);
       body.appendParagraph(' ');
       j += 1;
   }
@@ -84,6 +73,7 @@ function download_longo_continuar(url) {
   let doc = DocumentApp.getActiveDocument();
   let body = doc.getBody();
   const chunk = 15000000;
+  const num_partes = 100;
   var propriedades = PropertiesService.getScriptProperties();
   let metadados = [];
   let aux = JSON.parse(propriedades.getProperty('downloads'));
@@ -107,11 +97,7 @@ function download_longo_continuar(url) {
   }
   console.log("metadados_download_salvo: " + JSON.stringify(metadados));
   console.log("nome_download_salvo: " + metadados[k]);
-  let tamanho = metadados[k + 1];
-  console.log("tamanho_download_salvo: " + tamanho);
-  let num_partes = metadados[k + 2];
-  console.log("num_partes_download_salvo: " + num_partes);
-  let parte_atual = metadados[k + 3];
+  let parte_atual = metadados[k + 1];
   console.log("parte atual_download_salvo: " + parte_atual);
   for(parte_atual; parte_atual < num_partes; parte_atual++) {
     let inicio;
@@ -122,27 +108,33 @@ function download_longo_continuar(url) {
     if (parte_atual > 0) {
       inicio = parte_atual * chunk + 1;
     }
-    if (parte_atual == num_partes - 1) {
-      let aux = parte_atual * chunk;
-      aux = aux - tamanho;
-      final = parte_atual * chunk - aux;
-      console.log("última parte ajustada: " + final);
+    try {
+      console.log("inicio download_continuado: " + inicio);
+      console.log("final download_continuado: " + final);
+      const headers = { 'Range': 'bytes=' + inicio + '-' + final};
+      const opcoes = { 'headers': headers };
+      let resposta = UrlFetchApp.fetch(url, opcoes);
+      let blob = resposta.getBlob();
+      DriveApp.createFile(blob).setName(url + "_parte_" + parte_atual);
+      propriedades.setProperty("downloads", JSON.stringify(metadados));
+      console.log("inicio_loop_download_continuado: " + inicio);
+      console.log("fim_loop_download_continuado: " + final);
+      console.log("metadados_loop_download_continuado: " + JSON.stringify(metadados));
+      console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
+    } catch (e) {
+      if (String(e).includes('<title>416')) {
+        metadados.pop();
+        metadados.pop();
+        body.appendParagraph('download concluído');
+        propriedades.setProperty("downloads", JSON.stringify(metadados));
+        console.log("downloads depois do pop: " + propriedades.getProperty("downloads"));
+        return 1;
+      }
     }
-    console.log("inicio download_continuado: " + inicio);
-    console.log("final download_continuado: " + final);
-    const headers = { 'Range': 'bytes=' + inicio + '-' + final};
-    const opcoes = { 'headers': headers };
-    let resposta = UrlFetchApp.fetch(url, opcoes);
-    let blob = resposta.getBlob();
-    DriveApp.createFile(blob).setName(url + "_parte_" + parte_atual);
-    propriedades.setProperty("downloads", JSON.stringify(metadados));
-    console.log("inicio_loop_download_continuado: " + inicio);
-    console.log("fim_loop_download_continuado: " + final);
-    console.log("metadados_loop_download_continuado: " + JSON.stringify(metadados));
-    console.log("downloads_loop_download_continuado: " + propriedades.getProperty("downloads"));
   }
+
   metadados[k] = '"' + metadados[k] + '"';
-  metadados = metadados.slice(0, k).concat(metadados.slice(k + 3, metadados.length));
+  metadados = metadados.slice(0, k).concat(metadados.slice(k + 1, metadados.length));
   console.log("metadados após slice 1: " + metadados);
   //JSON.stringify(metadados).replace(/\"/g, '');
   body.appendParagraph(JSON.stringify(metadados));
@@ -283,6 +275,7 @@ function download_longo() {
       }
     }
   }
+
 }
 
 // baixa o arquivo inteiro de uma vez
