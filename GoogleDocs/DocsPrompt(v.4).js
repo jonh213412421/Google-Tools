@@ -69,8 +69,7 @@ function limpar_cache() {
 }
 
 //TESTAR!
-function download_longo_continuar() {
-  let url = "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz"
+function download_longo_continuar(url) {
   let doc = DocumentApp.getActiveDocument();
   let body = doc.getBody();
   const chunk = 15000000;
@@ -148,7 +147,7 @@ function download_longo() {
   //pega corpo do documento
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  let url = "https://libgen.li/get.php?md5=1f8495edead7ad32299feb0f4cd8a92a&key=KIQTR27SXD8SNF9O";
+  let url = body.getParagraphs()[0].getText();
   //tamanho do chunk
   const chunk = 15000000;
   //número máximo de partes 
