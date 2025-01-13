@@ -10,7 +10,7 @@ function onOpen() {
       .addItem('Converter Mensagem', 'converter_mgs')
       .addItem('Converter', 'converter')
       .addItem('Download Arquivo Longo', 'download_longo')
-      .addItem('Remover posições da memória', 'remover_da_memória')
+      .addItem('Remover posições da memória', 'remover_da_memoria')
       .addItem('Continuar Download', 'continuar_download')
       .addItem('Download Arquivo Curto', 'download_curto')
       .addItem('Downloads Ativos', 'downloads_ativos')
@@ -28,18 +28,27 @@ function inserir_na_memoria() {
 
 function remover_da_memoria() {
   const doc = DocumentApp.getActiveDocument();
-  body = doc.getBody().getParagraphs()[0].getText();
-  let i = parseInt(body);
-  var propriedades = PropertiesService.getScriptProperties();
-  var memoria = propriedades.getProperty('downloads');
-  memoria = JSON.parse(memoria);
-  memoria = memoria.slice(0, i).concat(memoria.slice(i + 1, memoria.length));
-  console.log(memoria);
-  for (let j = 0; j < memoria.length; j++) {
-    console.log(memoria[j]);
+  const body = doc.getBody();
+  var text = body.getParagraphs()[0].getText().split(' ');
+  for (let i = 0; i < text.length; i++) {
+    let aux = parseInt(text[i]);
+    if (i > 0) {
+      aux = aux - 1;
+    }
+    console.log("aux: " + aux);
+    body.appendParagraph(String(aux));
+    var propriedades = PropertiesService.getScriptProperties();
+    var memoria = propriedades.getProperty('downloads');
+    memoria = JSON.parse(memoria);
+    console.log(memoria);
+    memoria = memoria.slice(0, aux).concat(memoria.slice(aux + 1, memoria.length));
+    console.log(memoria);
+    for (let j = 0; j < memoria.length; j++) {
+      console.log(memoria[j]);
+    }
+    propriedades.setProperty('downloads', JSON.stringify(memoria));
+    console.log(propriedades.getProperty('downloads'));
   }
-  propriedades.setProperty('downloads', JSON.stringify(memoria));
-  console.log(propriedades.getProperty('downloads'));
 }
 
 //[d0][size, num_partes inicio, fim, pointer]
