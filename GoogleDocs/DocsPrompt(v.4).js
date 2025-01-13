@@ -10,6 +10,7 @@ function onOpen() {
       .addItem('Converter Mensagem', 'converter_mgs')
       .addItem('Converter', 'converter')
       .addItem('Download Arquivo Longo', 'download_longo')
+      .addItem('Remover posições da memória', 'remover_da_memória')
       .addItem('Continuar Download', 'continuar_download')
       .addItem('Download Arquivo Curto', 'download_curto')
       .addItem('Downloads Ativos', 'downloads_ativos')
@@ -23,6 +24,22 @@ function inserir_na_memoria() {
   const metadados = ["https://www.python.org/ftp/python/3.12.8/Python-2.12.8.tgz", 1, "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz", 1, "https://www.python.org/ftp/python/3.12.8/Python-5.12.8.tgz", 3];
   propriedades.setProperty("downloads", JSON.stringify(metadados));
   console.log("valores no vetor: " + propriedades.getProperty("downloads"));
+}
+
+function remover_da_memoria() {
+  const doc = DocumentApp.getActiveDocument();
+  body = doc.getBody().getParagraphs()[0].getText();
+  let i = parseInt(body);
+  var propriedades = PropertiesService.getScriptProperties();
+  var memoria = propriedades.getProperty('downloads');
+  memoria = JSON.parse(memoria);
+  memoria = memoria.slice(0, i).concat(memoria.slice(i + 1, memoria.length));
+  console.log(memoria);
+  for (let j = 0; j < memoria.length; j++) {
+    console.log(memoria[j]);
+  }
+  propriedades.setProperty('downloads', JSON.stringify(memoria));
+  console.log(propriedades.getProperty('downloads'));
 }
 
 //[d0][size, num_partes inicio, fim, pointer]
@@ -115,7 +132,7 @@ function download_longo_continuar(url) {
       const opcoes = { 'headers': headers };
       let resposta = UrlFetchApp.fetch(url, opcoes);
       let blob = resposta.getBlob();
-      DriveApp.createFile(blob).setName(url + "_parte_" + parte_atual);
+      DriveApp.createFile(blob).setName(url + "parte" + parte_atual);
       propriedades.setProperty("downloads", JSON.stringify(metadados));
       console.log("inicio_loop_download_continuado: " + inicio);
       console.log("fim_loop_download_continuado: " + final);
@@ -130,11 +147,6 @@ function download_longo_continuar(url) {
       }
     }
   }
-
-  metadados[k] = '"' + metadados[k] + '"';
-  metadados = metadados.slice(0, k).concat(metadados.slice(k + 1, metadados.length));
-  console.log("metadados após slice 1: " + metadados);
-  //JSON.stringify(metadados).replace(/\"/g, '');
   body.appendParagraph(JSON.stringify(metadados));
   console.log("metadados após slice de download_continuado: " + JSON.stringify(metadados));
   propriedades.setProperty("downloads", JSON.stringify(metadados));
@@ -147,7 +159,7 @@ function download_longo() {
   //pega corpo do documento
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  let url = body.getParagraphs()[0].getText();
+  let url = "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz";
   //tamanho do chunk
   const chunk = 15000000;
   //número máximo de partes 
@@ -193,7 +205,7 @@ function download_longo() {
       for(parte_atual; parte_atual < num_partes; parte_atual++) {
         let inicio = parte_atual * chunk;
         let final = parte_atual * chunk + chunk;
-        let index_parte_atual = j + 2;
+        let index_parte_atual = k + 1;
         console.log("inicio download_continuado: " + inicio);
         console.log("final download_continuado: " + final);
         const headers = { 'Range': 'bytes=' + (inicio + 1) + '-' + final};
@@ -201,7 +213,7 @@ function download_longo() {
         try {
           let resposta = UrlFetchApp.fetch(url, opcoes);
           let blob = resposta.getBlob();
-          DriveApp.createFile(blob).setName(url + "_parte_" + parte_atual);
+          DriveApp.createFile(blob).setName(url + "parte" + parte_atual);
           metadados[index_parte_atual] = i;
           propriedades.setProperty("downloads", JSON.stringify(metadados));
           console.log("inicio_loop_download_continuado: " + inicio);
@@ -211,8 +223,6 @@ function download_longo() {
         } catch(e) {
         console.log(e);
         if (String(e).includes('code 416') || String(e).includes('<title>416')) {
-          metadados.pop();
-          metadados.pop();
           body.appendParagraph('download concluído');
           propriedades.setProperty("downloads", JSON.stringify(metadados));
           console.log("downloads depois do pop: " + propriedades.getProperty("downloads"));
@@ -221,8 +231,6 @@ function download_longo() {
         }
 
       }
-      metadados[k] = '"' + metadados[k] + '"';
-      metadados = metadados.slice(0, k).concat(metadados.slice(k + 1, metadados.length));
       //JSON.stringify(metadados).replace(/\"/g, '');
       body.appendParagraph(JSON.stringify(metadados));
       console.log("metadados após slice de download_continuado: " + JSON.stringify(metadados));
@@ -233,7 +241,7 @@ function download_longo() {
     let i = 0;
     metadados.push(url);
     metadados.push(i);
-    let index_parte_atual = j + 2;
+    let index_parte_atual = metadados.lastIndexOf() - 1;
     console.log("metadados: " + JSON.stringify(metadados));
     console.log("parte atual: " + metadados[index_parte_atual]);
     propriedades.setProperty("downloads", JSON.stringify(metadados));
@@ -252,7 +260,7 @@ function download_longo() {
       try {
         let resposta = UrlFetchApp.fetch(url, opcoes);
         let blob = resposta.getBlob();
-        DriveApp.createFile(blob).setName(url + "_parte_" + i);
+        DriveApp.createFile(blob).setName(url + "parte" + i);
         metadados[index_parte_atual] = i;
         propriedades.setProperty("downloads", JSON.stringify(metadados));
         console.log("inicio_loop: " + inicio);
