@@ -19,11 +19,28 @@ function onOpen() {
       .addToUi();
 }
 
-function inserir_na_memoria() {
+function inserir_teste() {
   var propriedades = PropertiesService.getScriptProperties();
   const metadados = ["https://www.python.org/ftp/python/3.12.8/Python-2.12.8.tgz", 1, "https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz", 1, "https://www.python.org/ftp/python/3.12.8/Python-5.12.8.tgz", 3];
   propriedades.setProperty("downloads", JSON.stringify(metadados));
   console.log("valores no vetor: " + propriedades.getProperty("downloads"));
+}
+
+function inserir_na_memoria() {
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  var text = body.getParagraphs()[0].getText().split(' ');
+  var propriedade = PropertiesService.getScriptProperties();
+  var memoria = propriedade.getProperty('downloads');
+  memoria = JSON.parse(memoria);
+  console.log(memoria);
+  for(let i = 0; i < text.length; i++) {
+    memoria.push(text[i]);
+    console.log(memoria);
+  }
+  console.log(memoria);
+  propriedade.setProperty('downloads', JSON.stringify(memoria));
+  console.log(propriedade.getProperty('downloads'));
 }
 
 function remover_da_memoria() {
