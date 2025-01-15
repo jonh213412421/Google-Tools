@@ -36,7 +36,7 @@ function inserir_na_memoria() {
   console.log(memoria);
   for(let i = 0; i < text.length; i++) {
     memoria.push(text[i]);
-    console.log(memoria);
+    console.log(memoria)
   }
   console.log(memoria);
   propriedade.setProperty('downloads', JSON.stringify(memoria));
@@ -267,7 +267,7 @@ function download_longo() {
     let i = 0;
     metadados.push(url);
     metadados.push(i);
-    let index_parte_atual = metadados.lastIndexOf() - 1;
+    let index_parte_atual = metadados.length - 1;
     console.log("metadados: " + JSON.stringify(metadados));
     console.log("parte atual: " + metadados[index_parte_atual]);
     propriedades.setProperty("downloads", JSON.stringify(metadados));
